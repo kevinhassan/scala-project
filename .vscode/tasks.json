@@ -1,0 +1,41 @@
+{
+    "version": "0.1.0",
+    "command": "sbt",
+    "isShellCommand": true,
+    "showOutput": "always",
+    "suppressTaskName": true,
+    "tasks": [
+        {
+            "taskName": "build",
+            "args": ["compile"] 
+        },
+        {
+            "taskName": "hot-build",
+            "args": ["~compile"] 
+        },
+        {
+            "taskName": "test",
+            "args": ["test"]
+        },
+        {
+            "taskName": "hot-test",
+            "args": ["~testQuick"] 
+        },
+        {
+            "taskName": "run",
+            "args": ["run"]
+        },
+        {
+            "taskName": "linter-test",
+            "args": ["test:scalastyle"] 
+        },
+        {
+            "taskName": "linter",
+            "args": ["scalastyle"] 
+        },
+        {
+            "taskName": "hot-linter",
+            "args": ["~scalastyle"] 
+        }
+    ]
+}
