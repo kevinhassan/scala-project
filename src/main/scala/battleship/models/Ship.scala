@@ -1,5 +1,7 @@
 package battleship.models
 
+import battleship.Utils
+
 /**
   * Ship
   *
@@ -31,7 +33,7 @@ case class Ship(name: String, positions: Set[(Int, Int, Boolean)] = Set(), isSun
     val newPos = positions.filter(list => list != Tuple3(position._1, position._2, false)) + Tuple3(position._1, position._2, true)
     val newShip = copy(positions = newPos)
     val nIsSunk = newShip.getPositions.isEmpty
-    if (nIsSunk) println("Coulé !")
+    if (nIsSunk) Utils.printMessage("You sank my battleship !")
     newShip.copy(isSunk = nIsSunk)
   }
 

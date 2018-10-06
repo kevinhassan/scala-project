@@ -43,7 +43,7 @@ object Utils {
     * @param shipType specific ship to create
     * @return correct coordinates and direction symbol
     */
-  def askCreateShip(player: Player, shipType: String): Option[(Int, Int, Char)] = {
+  def askCreateShip(player: Player, shipType: String): (Int, Int, Char) = {
     val message: String = "Player `" + player.username + "` - Enter the position and orientation for `" +
       shipType + "` ship (size : " + Ship.types(shipType) + ")" +
       "\n(format : `X,Y,orientation`) -- v - vertical or h - horizontal"
@@ -54,8 +54,10 @@ object Utils {
       val coords = convertPosition(input(0).charAt(0), input(1).toInt)
       val direction: Char = input(2).toLowerCase().charAt(0)
       direction match {
-        case 'v' | 'h' => Some((coords._1, coords._2, direction))
-        case _ => None
+        case 'v' | 'h' => (coords._1, coords._2, direction)
+        case _ =>
+          displayError("invalid direction")
+          askCreateShip(player, shipType)
       }
     } catch {
       case _: Throwable =>
@@ -95,28 +97,36 @@ object Utils {
     */
   def askShotPosition(player: Player): (Int, Int) = {
     val message: String = s"Player ${player.username} - Enter the position to shoot\n(format : `X , Y`) : "
-    printMessage(message)
-    try {
-      val input = scala.io.StdIn.readLine().trim().split(',')
-      val position: (Int, Int) = convertPosition(input(0).charAt(0), input(1).toInt)
-      if (player.grid.checkPosition(position)) position else throw new Exception
-    } catch {
-      case _: Throwable =>
-        displayError("The position is invalid !")
-        displayGridShots(player)
-        askShotPosition(player)
-    } finally {
-      println()
+    if (player.isHuman) {
+      printMessage(message)
+      try {
+        val input = scala.io.StdIn.readLine().trim().split(',')
+        val position: (Int, Int) = convertPosition(input(0).charAt(0), input(1).toInt)
+        if (player.grid.checkPosition(position)) position else throw new Exception
+      } catch {
+        case _: Throwable =>
+          if (player.isHuman) displayError("The position is invalid !")
+          displayGridShots(player)
+          askShotPosition(player)
+      } finally {
+        println()
+      }
+    } else {
+      // check what type of IA it's to adopt specific strategy
+      player.username match {
+        case "easy" =>
+          // shot randomly on the player grid
+          generateRandomPosition(player)
+      }
     }
   }
 
   /**
     * Ask to the winner player if he wants restart the game
-    *
     * @return the decision of the winner player
     */
   def askToRestart: Boolean = {
-    val message: String = "Do you want to restart the game ?\n"
+    val message: String = "Do you want to restart the game (y/n) ?\n"
     printMessage(message)
     try {
       val input: Char = scala.io.StdIn.readLine().trim().toLowerCase.charAt(0)
@@ -136,8 +146,33 @@ object Utils {
     * Clear the console
     * \033c is a special char
     */
-  def clearConsole(): Unit = println("\033c")
+  def clearConsole(): Unit = {
+    Thread.sleep(500)
+    println("\033c")
+  }
 
+  /**
+    * Generate a position in the grid
+    *
+    * @param player owner of the grid
+    * @return coordinates in the grid
+    */
+  def generateRandomPosition(player: Player): (Int, Int) = {
+    val x = randomX.nextInt(player.grid.size)
+    val y = randomY.nextInt(player.grid.size)
+    (x, y)
+  }
+
+  /**
+    * Generate a random direction
+    * Char v or h
+    *
+    * @return one of two possible character
+    */
+  def generateRandomDirection: Char = {
+    val direction: Int = randomDirection.nextInt(2)
+    if (direction == 0) 'v' else 'h'
+  }
 
   /**
     * Create the fleet for the player
@@ -152,33 +187,31 @@ object Utils {
     def createFleetTailRec(p: Player, nbShip: Int = 0): Player = {
       // all ship are created
       if (nbShip == Ship.types.size) {
-        displayGridBoats(p)
+        if (player.isHuman) displayGridBoats(p)
         p
       } else {
-        displayGridBoats(p)
+        if (player.isHuman) displayGridBoats(p)
         // get the ship to create
         val ship: (String, Int) = Ship.types.toList(nbShip)
-        val input: Option[(Int, Int, Char)] = askCreateShip(p, ship._1)
-        // if the input is incorrect he retries
-        if (input.isEmpty) {
-          createFleetTailRec(p, nbShip)
-        } else {
-          val x: (Int, Int, Char) = input.get
-          // create the ship and check (its position in the grid and no overlay with other ship)
-          p.createShip(ship._1, (x._1, x._2), x._3) match {
-            case None =>
-              displayError("Incorrect ship")
-              createFleetTailRec(p, nbShip)
-            case Some(s) =>
-              // add the ship to the player's grid and continue with the other
-              val ships = p.grid.ships + s
-              val newGrid = p.grid.copy(ships = ships)
-              createFleetTailRec(p.copy(grid = newGrid), nbShip + 1)
-          }
+        // if the player is human he types himself his position else position is choosen randomly
+        val input: (Int, Int, Char) = if (player.isHuman) askCreateShip(p, ship._1) else {
+          val coords: (Int, Int) = generateRandomPosition(player)
+          val direction: Char = generateRandomDirection
+          (coords._1, coords._2, direction)
+        }
+        // create the ship and check (its position in the grid and no overlay with other ship)
+        p.createShip(ship._1, (input._1, input._2), input._3) match {
+          case None =>
+            if (player.isHuman) displayError("Incorrect ship")
+            createFleetTailRec(p, nbShip)
+          case Some(s) =>
+            // add the ship to the player's grid and continue with the other
+            val ships = p.grid.ships + s
+            val newGrid = p.grid.copy(ships = ships)
+            createFleetTailRec(p.copy(grid = newGrid), nbShip + 1)
         }
       }
     }
-
     createFleetTailRec(player)
   }
 
