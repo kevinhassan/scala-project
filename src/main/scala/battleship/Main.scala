@@ -5,10 +5,13 @@ import battleship.models.{GameState, Grid, Player}
 import scala.annotation.tailrec
 
 object Main extends App {
-  println("Welcome to the Battleship game !")
   val gridSize = 10
+  Utils.printMessage("Welcome to the Battleship game !")
   chooseMode()
 
+  /**
+    * Select the mode to play
+    */
   def chooseMode(): Unit = {
     val optionChosen: Int = Utils.askOptions
     optionChosen match {
@@ -19,6 +22,11 @@ object Main extends App {
     }
   }
 
+  /**
+    * Mode player vs player
+    *
+    * @return
+    */
   def playerVsPlayer(): GameState = {
     val username1: String = Utils.askUsername(1)
     val username2: String = Utils.askUsername(2)

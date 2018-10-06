@@ -6,51 +6,71 @@ import scala.annotation.tailrec
 import scala.collection.immutable.Set
 
 /**
-  * This class will manage all checks on shot and ship's positions
+  * Grid class manage ships and shots
+  *
+  * It can constitute grid thanks to ships and opponent shots
+  * It can create grid with owner shoots
+  *
+  * @param size          grid size (>0)
+  * @param ships         collection of ships
+  * @param shots         collection of shot done by the grid's owner
+  * @param opponentShots collection of shot done by the opponent player
   */
 case class Grid(size: Int, ships: Set[Ship] = Set(), shots: Set[(Int, Int, Boolean)] = Set(), opponentShots: Set[(Int, Int, Boolean)] = Set()) {
-  /** Get all ships alive on the player's grid
-    * Collection of ships not sink
+
+  /**
+    * Get all ships alive for the grid's owner
     *
-    * @return Set[Ship]
+    * @return Set[Ship] Collection of ships not sink
     */
   def getAliveShips: Set[Ship] = ships.filter(ship => !ship.isSunk)
 
-  /** Make the shot on the opponent grid
+  /**
+    * Make the shot on the opponent grid
     *
-    * @param position where to shoot
-    * @return
+    * @param position where the shot is done
+    * @return Grid new grid with the shot added to shots collection
     */
   def makeAShot(position: (Int, Int, Boolean)): Grid = {
     copy(shots = shots + position)
   }
 
-  /** Take the shot on the grid
+  /**
+    * Take the shot on the grid
     *
-    * @param position where the shot is located
-    * @return
+    * @param position where the opponent shot
+    * @return new grid with the shot added to the opponentShot collection
     */
   def takeAShot(position: (Int, Int)): Grid = {
+    // if a ship is concerned by the shot then destroy ship's position and create a new one
     if (isTouched(position)) {
+      // separate sunk and not sunk ship to avoid useless browse on the ship collection
       val shipsNotSunk: Set[Ship] = ships.filter { ship: Ship => !ship.isSunk }
       val shipsSunk: Set[Ship] = ships.filter { ship: Ship => ship.isSunk }
+      // the new ship is updated in the not sunk ship collection
       val newShips: Set[Ship] = shipsNotSunk.map { ship => ship.destroyPosition(position) }
+      // concatenate sunk ship collection to the new collection `newShips`
       copy(ships = newShips ++ shipsSunk, opponentShots = opponentShots + Tuple3(position._1, position._2, true))
     } else {
+      // else the shot was not targeting a ship and the result is `false`
       copy(opponentShots = opponentShots + Tuple3(position._1, position._2, false))
     }
   }
 
-  /** Check if one ship is touch by the shot
+  /**
+    * Check if one ship is touch by the shot
+    * Browse ships collection
+    * If true then a ship is concerned by the shot
     *
     * @param position possible ship position
     * @return
     */
   def isTouched(position: (Int, Int)): Boolean = ships.exists(_.isShot(position))
 
-  /** Fill the grid with player shots
+  /**
+    * Fill the grid with player shots
     *
-    * @return
+    * @return grid fill with player' shots
     */
   def fillGridWithPlayerShots: List[List[String]] = {
     val symbs: Map[Boolean, String] = Map(true -> battleship.Utils.colors("red"), false -> battleship.Utils.colors("blue"))
@@ -70,22 +90,11 @@ case class Grid(size: Int, ships: Set[Ship] = Set(), shots: Set[(Int, Int, Boole
     fillGridWithPlayerShotsTailRec(generateEmptyGrid, shots)
   }
 
-  /** Update the line of the grid with symb
-    *
-    * @param line     line to update
-    * @param position position where update
-    * @param symbs    symbole to add according condition
-    * @return
-    */
-  def editLine(line: List[String], position: (Int, Int, Boolean), symbs: Map[Boolean, String]): List[String] = {
-    line.updated(position._1, symbs(position._3))
-  }
-
   /**
     * Fill the grid with the opponent shots
     *
     * @param grid player grid to fill
-    * @return new grid with shots
+    * @return new grid with opponent shots
     */
   def fillGridWithOpponentShots(grid: List[List[String]]): List[List[String]] = {
     val symbs: Map[Boolean, String] = Map(true -> Utils.colors("red"), false -> battleship.Utils.colors("blue"))
@@ -106,15 +115,22 @@ case class Grid(size: Int, ships: Set[Ship] = Set(), shots: Set[(Int, Int, Boole
     fillGridWithOpponentShotsTailRec(grid, opponentShots)
   }
 
-  /** Generate the grid empty
+  /**
+    * Update the line of the grid with symb
     *
-    * @return
+    * @param line     line to update
+    * @param position position where update
+    * @param symbs    symbol to add according condition
+    * @return new line updated
     */
-  def generateEmptyGrid: List[List[String]] = List.fill(size)(List.fill(size)(" "))
+  def editLine(line: List[String], position: (Int, Int, Boolean), symbs: Map[Boolean, String]): List[String] = {
+    line.updated(position._1, symbs(position._3))
+  }
 
-  /** Fill the grid with player's boat
+  /**
+    * Fill the grid with player's boat
     *
-    * @return
+    * @return grid filled with player's ships
     */
   def fillGridWithShip: List[List[String]] = {
     val symbs: Map[Boolean, String] = Map(true -> battleship.Utils.colors("red"), false -> battleship.Utils.colors("white"))
@@ -135,14 +151,23 @@ case class Grid(size: Int, ships: Set[Ship] = Set(), shots: Set[(Int, Int, Boole
     fillGridWithShipTailRec(generateEmptyGrid, ships)
   }
 
-  /**Check position validity on the grid
+  /**
+    * Generate the grid empty
+    *
+    * @return empty grid
+    */
+  def generateEmptyGrid: List[List[String]] = List.fill(size)(List.fill(size)(" "))
+
+  /**
+    * Check position validity on the grid
     *
     * @param position tuple X and Y
     * @return true if the position match with the grid
     */
   def checkPosition(position: (Int, Int)): Boolean = position._1 >= 0 && position._2 >= 0 && position._1 < size && position._2 < size
 
-  /** Check ship placement
+  /**
+    * Check ship placement
     * check if ship overpass an other ship
     *
     * @param ship to place on the player's grid
@@ -167,7 +192,6 @@ case class Grid(size: Int, ships: Set[Ship] = Set(), shots: Set[(Int, Int, Boole
 
   /**
     * Add new ship to the grid
-    *
     * @param ship the ship to add
     * @return new grid
     */

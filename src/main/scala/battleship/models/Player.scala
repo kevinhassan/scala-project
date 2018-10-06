@@ -6,26 +6,32 @@ import scala.collection.immutable.Set
 /**
   * A player who play battleship game
   *
-  * @constructor create a new player with ships, shots and score
+  * @constructor create a new player with ships, shots, human/IA and score
   * @param username player's username
   * @param grid     player's grid
+  * @param isHuman  human or AI
   * @param score    score of the player during the game
   */
 case class Player(username: String, grid: Grid, isHuman: Boolean, score: Int = 0) {
-  /** Know if the player has ship
+
+  /**
+    * Know if the player has ship
     * True if at least one ship for the player
+    *
     * @return boolean
     */
   def hasShip: Boolean = getAliveShips.nonEmpty
 
-  /** Get all ships alive on the player's grid
+  /**
+    * Get all ships alive on the player's grid
     * Collection of ships not sink
     *
     * @return Set[Ship]
     */
   def getAliveShips: Set[Ship] = grid.getAliveShips
 
-  /** Shot grid position
+  /**
+    * Shot grid position
     * Add new shot position to the player's grid
     *
     * @param position position targeted by the active player and result of the shot
@@ -44,7 +50,8 @@ case class Player(username: String, grid: Grid, isHuman: Boolean, score: Int = 0
     copy(grid = grid.takeAShot(position))
   }
 
-  /** Create new ship to the player
+  /**
+    * Create new ship to the player
     *
     * @param position tuple X,Y
     * @return new boats or error
@@ -72,7 +79,8 @@ case class Player(username: String, grid: Grid, isHuman: Boolean, score: Int = 0
     createShipTailRec(position, direction, Ship(typeName))
   }
 
-  /**Add the ship to the player
+  /**
+    * Add the ship to the player
     *
     * @param ship new ship to add
     * @return the player with a new grid
@@ -81,13 +89,17 @@ case class Player(username: String, grid: Grid, isHuman: Boolean, score: Int = 0
     val newGrid = grid.addShip(ship)
     copy(grid = newGrid)
   }
-  /**Reset ships and shots of the player
+
+  /**
+    * Reset ships and shots of the player
     * when the player launch a new game his ships and shots are reset
-    * @return
+    *
+    * @return the player with an empty grid
     */
   def resetPlayer: Player = copy(grid = Grid(grid.size))
 
-  /**Get fleet size
+  /**
+    * Get fleet size
     * Return the number of ships' collection on the grid
     *
     * @return Int number of ship
