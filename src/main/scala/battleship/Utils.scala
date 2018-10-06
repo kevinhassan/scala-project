@@ -1,6 +1,9 @@
 package battleship
 
-import battleship.models.{Player, Ship}
+import java.io.File
+
+import battleship.models.{GameState, Player, Ship}
+import com.github.tototoshi.csv._
 
 import scala.annotation.tailrec
 import scala.util.Random
@@ -13,6 +16,8 @@ object Utils {
   val randomDirection: Random = Random
   val randomX: Random = Random
   val randomY: Random = Random
+  val fileName: String = "~/ai_proof.csv"
+
   // colors used on the console
   val colors: Map[String, String] = Map("red" -> (Console.RED_B+" "+Console.RESET), "blue" -> (Console.BLUE_B+" "+Console.RESET), "white" -> (Console.WHITE_B+" "+Console.RESET), "blue" -> (Console.BLUE_B+" "+Console.RESET))
   /**
@@ -30,7 +35,7 @@ object Utils {
       scala.io.StdIn.readLine()
     }catch{
       case _: NumberFormatException =>
-        displayError("The name choosen is incorrect")
+        displayError("The name chosen is incorrect")
         askUsername(idPlayer)
     }
   }
@@ -70,14 +75,14 @@ object Utils {
   /**
     * Ask to the main player to choose one option
     *
-    * @return the option choosen
+    * @return the option chosen
     */
   def askOptions: Int = {
     val message = "Press the key corresponding to the instruction wanted :\n" +
       "1 - Player vs Player \n2 - Player vs Beginner AI\n" +
       "3 - Player vs Medium AI\n4 - Player vs Hard AI\n" +
       "5 - Beginner AI vs Medium AI\n6 - Medium AI vs Hard AI\n" +
-      "7 - Hard AI vs Easy AI\n" + "Enter the number of the option : "
+      "7 - Hard AI vs Easy AI\n8 - Launch AI simulation (save CSV)\n" + "Enter the number of the option : "
     printMessage(message)
     try{
       scala.io.StdIn.readInt()
@@ -197,7 +202,7 @@ object Utils {
         if (player.isHuman) displayGridBoats(p)
         // get the ship to create
         val ship: (String, Int) = Ship.types.toList(nbShip)
-        // if the player is human he types himself his position else position is choosen randomly
+        // if the player is human he types himself his position else position is chosen randomly
         val input: (Int, Int, Char) = if (player.isHuman) askCreateShip(p, ship._1) else {
           val coords: (Int, Int) = generateRandomPosition(player)
           val direction: Char = generateRandomDirection
@@ -311,5 +316,20 @@ object Utils {
     println()
     println(message)
     println()
+  }
+
+  /**
+    * write game states of different AI on an CSV file
+    *
+    * @param gameStates all different game played
+    */
+  def writeOnCsv(gameStates: List[GameState]): Unit = {
+    val file = new File(fileName)
+    val writer = CSVWriter.open(file)
+    writer.writeRow(List("AI Name", "score", "AI Name 2", "score 2"))
+    gameStates.foreach(gameState => {
+      writer.writeRow(List(s"AI Level ${gameState.getActivePlayer.username}", gameState.getActivePlayer.score, s"Level ${gameState.getOpponentPlayer.username}", gameState.getOpponentPlayer.score))
+    })
+    writer.close()
   }
 }
