@@ -3,12 +3,16 @@ package battleship
 import battleship.models.{Player, Ship}
 
 import scala.annotation.tailrec
+import scala.util.Random
 
 /**
   * Object gathering input, output methods and conversion methods
   * Used to create player's fleet
   */
 object Utils {
+  val randomDirection: Random = Random
+  val randomX: Random = Random
+  val randomY: Random = Random
   // colors used on the console
   val colors: Map[String, String] = Map("red" -> (Console.RED_B+" "+Console.RESET), "blue" -> (Console.BLUE_B+" "+Console.RESET), "white" -> (Console.WHITE_B+" "+Console.RESET), "blue" -> (Console.BLUE_B+" "+Console.RESET))
   /**
@@ -154,7 +158,7 @@ object Utils {
         displayGridBoats(p)
         // get the ship to create
         val ship: (String, Int) = Ship.types.toList(nbShip)
-        val input: Option[(Int, Int, Char)] = askCreateShip(player, ship._1)
+        val input: Option[(Int, Int, Char)] = askCreateShip(p, ship._1)
         // if the input is incorrect he retries
         if (input.isEmpty) {
           createFleetTailRec(p, nbShip)

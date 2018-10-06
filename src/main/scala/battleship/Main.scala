@@ -9,6 +9,20 @@ object Main extends App {
   Utils.printMessage("Welcome to the Battleship game !")
   chooseMode()
 
+  def playerVsAi(difficulty: String): GameState = {
+    val username1: String = Utils.askUsername(1)
+    // create player with his fleet of ship
+    val player1 = Utils.createFleet(Player(username1, Grid(gridSize), isHuman = true))
+    Utils.clearConsole()
+    val player2 = Utils.createFleet(Player(difficulty, Grid(gridSize), isHuman = false))
+    val gameState: GameState = GameState(Set(player1, player2), player1)
+
+    // humain place bateau
+    // effacer console
+    // ia place bateau (couper les affichages) (if pas humain)
+    null
+  }
+
   /**
     * Select the mode to play
     */
@@ -16,8 +30,11 @@ object Main extends App {
     val optionChosen: Int = Utils.askOptions
     optionChosen match {
       case 1 => playerVsPlayer()
+      case 2 => playerVsAi("easy")
+      case 3 => playerVsAi("medium")
+      case 4 => playerVsAi("hard")
       case _ =>
-        Utils.displayError("Incorrect option choosen")
+        Utils.displayError("Incorrect option choose")
         chooseMode()
     }
   }
@@ -60,9 +77,6 @@ object Main extends App {
       val nGameState: GameState = g.copy(players = Set(nActivePlayer, nOpponentPlayer))
       Thread.sleep(1000)
       // check if the opponent has always a ship
-      println(nGameState)
-      println()
-      println(nGameState.isFinish)
       if (nGameState.isFinish) {
         // finish the game and print the gameState score
         Utils.printMessage(s"Player `${nActivePlayer.username}` - win ! ${nActivePlayer.score + 1} - ${nOpponentPlayer.score}")
