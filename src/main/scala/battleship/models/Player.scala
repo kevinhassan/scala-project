@@ -83,7 +83,7 @@ case class Player(username: String, grid: Grid, isHuman: Boolean, score: Int = 0
     * Add the ship to the player
     *
     * @param ship new ship to add
-    * @return the player with a new grid
+    * @return the player with a new gridsq
     */
   def addShip(ship: Ship): Player = {
     val newGrid = grid.addShip(ship)

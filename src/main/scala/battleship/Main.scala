@@ -17,7 +17,7 @@ object Main extends App {
     optionChosen match {
       case 1 => playerVsPlayer()
       case _ =>
-        Utils.displayError("Incorrect option choosen")
+        Utils.displayError("Incorrect option choose")
         chooseMode()
     }
   }
@@ -60,9 +60,6 @@ object Main extends App {
       val nGameState: GameState = g.copy(players = Set(nActivePlayer, nOpponentPlayer))
       Thread.sleep(1000)
       // check if the opponent has always a ship
-      println(nGameState)
-      println()
-      println(nGameState.isFinish)
       if (nGameState.isFinish) {
         // finish the game and print the gameState score
         Utils.printMessage(s"Player `${nActivePlayer.username}` - win ! ${nActivePlayer.score + 1} - ${nOpponentPlayer.score}")
