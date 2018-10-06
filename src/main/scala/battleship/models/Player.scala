@@ -15,6 +15,16 @@ import scala.collection.immutable.Set
 case class Player(username: String, grid: Grid, isHuman: Boolean, score: Int = 0) {
 
   /**
+    * Check if a position has already shot before
+    *
+    * @param position position to shoot
+    * @return true if the position is already shot
+    */
+  def hasAlreadyShot(position: (Int, Int)): Boolean = {
+    grid.shots.exists(p => p._1 == position._1 && p._2 == position._2)
+  }
+
+  /**
     * Know if the player has ship
     * True if at least one ship for the player
     *

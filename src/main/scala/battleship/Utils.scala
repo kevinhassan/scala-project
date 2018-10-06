@@ -117,6 +117,10 @@ object Utils {
         case "easy" =>
           // shot randomly on the player grid
           generateRandomPosition(player)
+        case "medium" =>
+          // generate randomly coordinates and compare if they are not already shot before
+          val position: (Int, Int) = generateRandomPosition(player)
+          if (player.hasAlreadyShot(position)) askShotPosition(player) else position
       }
     }
   }
