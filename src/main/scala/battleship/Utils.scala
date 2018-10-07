@@ -3,7 +3,7 @@ package battleship
 import java.io.File
 
 import battleship.models.{GameState, Player, Ship}
-import com.github.tototoshi.csv._
+import com.github.tototoshi.csv.CSVWriter
 
 import scala.annotation.tailrec
 import scala.util.Random
@@ -16,7 +16,7 @@ object Utils {
   val randomDirection: Random = Random
   val randomX: Random = Random
   val randomY: Random = Random
-  val fileName: String = "~/ai_proof.csv"
+  val fileName: String = "ai_proof.csv"
 
   // colors used on the console
   val colors: Map[String, String] = Map("red" -> (Console.RED_B+" "+Console.RESET), "blue" -> (Console.BLUE_B+" "+Console.RESET), "white" -> (Console.WHITE_B+" "+Console.RESET), "blue" -> (Console.BLUE_B+" "+Console.RESET))
@@ -331,5 +331,6 @@ object Utils {
       writer.writeRow(List(s"AI Level ${gameState.getActivePlayer.username}", gameState.getActivePlayer.score, s"Level ${gameState.getOpponentPlayer.username}", gameState.getOpponentPlayer.score))
     })
     writer.close()
+    printMessage("file `ai_proof.csv` successfully created at the project root")
   }
 }

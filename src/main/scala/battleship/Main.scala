@@ -21,7 +21,7 @@ object Main extends App {
       case 6 => iaVsIa("medium", "hard")
       case 7 => iaVsIa("hard", "easy")
       case 8 =>
-        Utils.writeOnCsv(List(iaVsIa("easy", "medium"), iaVsIa("medium", "hard"), iaVsIa("hard", "easy")))
+        Utils.writeOnCsv(List(iaVsIa("easy", "medium")))
       case _ =>
         Utils.displayError("Incorrect option choose")
         chooseMode()
@@ -65,7 +65,8 @@ object Main extends App {
       // check if the opponent has always a ship
       if (nGameState.isFinish) {
         // finish the game and print the gameState score
-        Utils.printMessage(s"Player `${nActivePlayer.username}` - win ! ${nActivePlayer.score + 1} - ${nOpponentPlayer.score}")
+        Utils.printMessage(s"Player ${nActivePlayer.username} win !")
+        Utils.printMessage(s"Player ${nActivePlayer.username} (${nActivePlayer.score + 1}) - Player ${nOpponentPlayer.username} (${nOpponentPlayer.score})")
         if (Utils.askToRestart) {
           val p1: Player = nActivePlayer.copy(score = nActivePlayer.score + 1)
           val np1: Player = Utils.createFleet(p1.resetPlayer)
@@ -116,7 +117,11 @@ object Main extends App {
       // check if the opponent has always a ship
       if (nGameState.isFinish) {
         // finish the game and print the gameState score
-        Utils.printMessage(s"Player `${nActivePlayer.username}` - win ! ${nActivePlayer.score + 1} - ${nOpponentPlayer.score}")
+        if (nActivePlayer.isHuman) {
+          Utils.printMessage(s"Player ${nActivePlayer.username} (${nActivePlayer.score + 1}) - Player IA-${nOpponentPlayer.username} (${nOpponentPlayer.score})")
+        } else {
+          Utils.printMessage(s"Player IA-${nActivePlayer.username} (${nActivePlayer.score + 1}) - Player ${nOpponentPlayer.username} (${nOpponentPlayer.score})")
+        }
         if (Utils.askToRestart) {
           val p1: Player = nActivePlayer.copy(score = nActivePlayer.score + 1)
           val np1: Player = Utils.createFleet(p1.resetPlayer)
@@ -131,7 +136,6 @@ object Main extends App {
         playerVsIaTailRec(nGameState.nextRound)
       }
     }
-
     playerVsIaTailRec(gameState)
   }
 
@@ -159,15 +163,14 @@ object Main extends App {
 
       if (nGameState.isFinish) {
         // finish the game and print the gameState score
-        Utils.printMessage(s"Player `${nActivePlayer.username}` - win ! ${nActivePlayer.score + 1} - ${nOpponentPlayer.score}")
-        if (nbGame > 1) {
+        Utils.printMessage(s"Player IA-${nActivePlayer.username} (${nActivePlayer.score + 1}) - Player IA-${nOpponentPlayer.username} (${nOpponentPlayer.score})")
+        if (nbGame > 0) {
           val p1: Player = nActivePlayer.copy(score = nActivePlayer.score + 1)
           val np1: Player = Utils.createFleet(p1.resetPlayer)
           Utils.clearConsole()
           val p2: Player = Utils.createFleet(nOpponentPlayer.resetPlayer)
           iaVsIaTailRec(nGameState.copy(players = Set(p2, np1), launcher = p2), nbGame - 1)
         } else {
-          Utils.printMessage(s"Player IA-`${nActivePlayer.username}` (${nActivePlayer.score + 1}) - Player IA-${nOpponentPlayer.username} (${nOpponentPlayer.score})")
           g
         }
       } else {
