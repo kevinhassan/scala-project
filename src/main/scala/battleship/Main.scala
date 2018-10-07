@@ -21,7 +21,7 @@ object Main extends App {
       case 6 => iaVsIa("medium", "hard")
       case 7 => iaVsIa("hard", "easy")
       case 8 =>
-        Utils.writeOnCsv(List(iaVsIa("easy", "medium")))
+        Utils.writeOnCsv(List(iaVsIa("easy", "medium"), iaVsIa("medium", "hard"), iaVsIa("hard", "easy")))
       case _ =>
         Utils.displayError("Incorrect option choose")
         chooseMode()
@@ -163,7 +163,7 @@ object Main extends App {
 
       if (nGameState.isFinish) {
         // finish the game and print the gameState score
-        Utils.printMessage(s"Player IA-${nActivePlayer.username} (${nActivePlayer.score + 1}) - Player IA-${nOpponentPlayer.username} (${nOpponentPlayer.score})")
+        Utils.printMessage(s"Player IA-${nActivePlayer.username} (${nActivePlayer.score}) - Player IA-${nOpponentPlayer.username} (${nOpponentPlayer.score})")
         if (nbGame > 0) {
           val p1: Player = nActivePlayer.copy(score = nActivePlayer.score + 1)
           val np1: Player = Utils.createFleet(p1.resetPlayer)

@@ -126,6 +126,38 @@ object Utils {
           // generate randomly coordinates and compare if they are not already shot before
           val position: (Int, Int) = generateRandomPosition(player)
           if (player.hasAlreadyShot(position)) askShotPosition(player) else position
+        case "hard" =>
+          // at the first shot, shot at the center of the grid
+          if (player.grid.shots.isEmpty) {
+            (player.grid.size / 2, player.grid.size / 2)
+          } else {
+            // get the last shot which hit a ship
+            val hitShots: Set[(Int, Int, Boolean)] = player.grid.shots.filter(_._3)
+            // if no shot hit a ship then shot randomly
+            if (hitShots.isEmpty) {
+              val position: (Int, Int) = generateRandomPosition(player)
+              if (player.hasAlreadyShot(position)) askShotPosition(player) else position
+            } else {
+              val lastPosition: (Int, Int, Boolean) = hitShots.last
+              val upPosition: (Int, Int) = (lastPosition._1, lastPosition._2 - 1)
+              val downPosition: (Int, Int) = (lastPosition._1, lastPosition._2 + 1)
+              val leftPosition: (Int, Int) = (lastPosition._1 - 1, lastPosition._2)
+              val rightPosition: (Int, Int) = (lastPosition._1 + 1, lastPosition._2)
+              if (player.grid.checkPosition(upPosition) && !player.hasAlreadyShot(upPosition)) {
+                upPosition
+              } else if (player.grid.checkPosition(downPosition) && !player.hasAlreadyShot(downPosition)) {
+                downPosition
+              } else if (player.grid.checkPosition(leftPosition) && !player.hasAlreadyShot(leftPosition)) {
+                leftPosition
+              } else if (player.grid.checkPosition(rightPosition) && !player.hasAlreadyShot(rightPosition)) {
+                rightPosition
+              } else {
+                // if all position were touched or can't be touch we shot randomly on the grid
+                val position: (Int, Int) = generateRandomPosition(player)
+                if (player.hasAlreadyShot(position)) askShotPosition(player) else position
+              }
+            }
+          }
       }
     }
   }
